@@ -1,3 +1,4 @@
+import argparse
 import random
 import contextlib
 
@@ -97,17 +98,48 @@ def play(n_simulations: int = 10) -> dict[str, float]:
     return dct
 
 
-def main() -> int:
-    # simulate()
-    metrics = play(10000)
-    for metric, value in metrics.items():
-        print("".center(30, "-"))
-        if metric == "switch win rate":
-            # Color the switch win rate green.
-            print(f"\033[32m{metric:<20} | {value}\033[0m")
-            continue
+def process_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-n",
+        "--n_simulations",
+        type = int,
+        default = 10000,
+        help = "Number of simulations to run.",
+    )
+    parser.add_argument(
+        "-m",
+        "--mode",
+        type = str,
+        default = "sim",
+        help = "Mode to run the program in. 'sim' for simulation, 'play' to play the game.",
+    )
+    return parser.parse_args()
 
-        print(f"{metric:<20} | {value}")
+
+def main() -> int:
+    args = process_args()
+    n_simulations = args.n_simulations
+    mode = args.mode
+
+    if not str(n_simulations).isdigit():
+        print("Please enter a valid number of simulations.")
+        return 1
+    
+    match mode:
+        case "sim":
+            metrics = play(int(args.n_simulations))
+            for metric, value in metrics.items():
+                print("".center(30, "-"))
+                if metric == "switch win rate":
+                    print(f"\033[32m{metric:<20} | {value}\033[0m")
+                    continue
+                print(f"{metric:<20} | {value}")
+        case "play":
+            simulate()
+        case _:
+            print("Please enter a valid mode.")
+
     return 0
 
 
